@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.2](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.1...v1.1.2) (2025-02-06)
+
+### Bug Fixes
+
+* make setOn async and reuse device ([0c634ff](https://github.com/jabrown93/homebridge-playstation/commit/0c634ff838387793d15600bd92c248b30070b7ee))
+
 ## [1.1.1](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.0...v1.1.1) (2025-02-06)
 
 ### Bug Fixes
