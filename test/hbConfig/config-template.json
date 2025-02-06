@@ -8,7 +8,7 @@
   },
   "accessories": [],
   "plugins": [
-    "homebridge-plugin",
+    "@jabrown93/homebridge-playstation",
     "homebridge-config-ui-x"
   ],
   "platforms": [
