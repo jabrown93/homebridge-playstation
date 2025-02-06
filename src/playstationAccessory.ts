@@ -6,11 +6,11 @@ import {
   PlatformAccessory,
   Service,
 } from 'homebridge';
-import { Device } from 'playactor/dist/device';
+import { Device } from 'playactor/dist/device.js';
 import {
   DeviceStatus,
   IDiscoveredDevice,
-} from 'playactor/dist/discovery/model';
+} from 'playactor/dist/discovery/model.js';
 
 import { PlaystationPlatform } from './playstationPlatform.js';
 import { PLUGIN_NAME } from './settings.js';
