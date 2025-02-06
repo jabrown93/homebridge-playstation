@@ -29,7 +29,7 @@
   ],
   "main": "dist/index.js",
   "bin": {
-    "homebridge-playstation-login": "./dist/cli.js"
+    "homebridge-playstation-login": "dist/cli.js"
   },
   "files": [
     "dist",
