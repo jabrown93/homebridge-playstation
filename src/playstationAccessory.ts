@@ -194,7 +194,7 @@ export class PlaystationAccessory {
       this.log.debug('Lock is active, skipping update');
       return;
     }
-    this.log('Updating device information...');
+    this.log.debug('Updating device information...');
 
     this.lockUpdate = true;
 
