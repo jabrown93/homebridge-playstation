@@ -115,6 +115,7 @@ export class PlaystationAccessory {
       this.platform.config.pollInterval || this.platform.kDefaultPollInterval
     );
 
+    this.log.debug('Accessory created, publishing...');
     this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
   }
 

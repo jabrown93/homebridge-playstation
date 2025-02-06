@@ -4,7 +4,8 @@ import {
   PlatformConfig,
   Service,
   Characteristic,
-  IndependentPlatformPlugin,
+  DynamicPlatformPlugin,
+  PlatformAccessory,
 } from 'homebridge';
 
 import { PlaystationAccessory } from './playstationAccessory.js';
@@ -16,9 +17,14 @@ export interface PlaystationPlatformConfig extends PlatformConfig {
   apps?: Array<{ id: string; name: string }>;
 }
 
-export class PlaystationPlatform implements IndependentPlatformPlugin {
+export class PlaystationPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
   public readonly Characteristic: typeof Characteristic;
+  public readonly playstationAccessories: Map<string, PlaystationAccessory> =
+    new Map();
+
+  public readonly existingAccessories: Map<string, PlatformAccessory> =
+    new Map();
 
   public readonly kDefaultPollInterval = 15_000;
 
@@ -29,12 +35,18 @@ export class PlaystationPlatform implements IndependentPlatformPlugin {
   ) {
     this.Service = this.api.hap.Service;
     this.Characteristic = this.api.hap.Characteristic;
-    this.log.debug('Config', config);
+    this.log.debug('Config', JSON.stringify(config));
     this.log.info('Discovering devices...');
-
-    this.discoverDevices().catch(err => {
-      this.log.error((err as Error).message);
+    this.api.on('didFinishLaunching', async () => {
+      this.log.debug('Executed didFinishLaunching callback');
+      await this.discoverDevices().catch(err => {
+        this.log.error((err as Error).message);
+      });
     });
+  }
+
+  configureAccessory(accessory: PlatformAccessory) {
+    this.existingAccessories.set(accessory.UUID, accessory);
   }
 
   async discoverDevices() {
@@ -42,8 +54,10 @@ export class PlaystationPlatform implements IndependentPlatformPlugin {
     const devices = discovery.discover();
 
     for await (const deviceInformation of devices) {
-      this.log.debug('Discovered device:', deviceInformation);
-      new PlaystationAccessory(this, deviceInformation);
+      this.log.debug('Discovered device:', JSON.stringify(deviceInformation));
+      const accessory = new PlaystationAccessory(this, deviceInformation);
+      this.playstationAccessories.set(deviceInformation.id, accessory);
     }
+    this.log.debug('Finished discovering devices');
   }
 }
