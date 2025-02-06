@@ -7,7 +7,7 @@ import {
   IndependentPlatformPlugin,
 } from 'homebridge';
 
-import { PlaystationAccessory } from './playstationAccessory';
+import { PlaystationAccessory } from './playstationAccessory.js';
 import { Discovery } from 'playactor/dist/discovery';
 
 export interface PlaystationPlatformConfig extends PlatformConfig {

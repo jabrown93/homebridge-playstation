@@ -12,8 +12,8 @@ import {
   IDiscoveredDevice,
 } from 'playactor/dist/discovery/model';
 
-import { PlaystationPlatform } from './playstationPlatform';
-import { PLUGIN_NAME } from './settings';
+import { PlaystationPlatform } from './playstationPlatform.js';
+import { PLUGIN_NAME } from './settings.js';
 import { IDeviceConnection } from 'playactor/dist/connection/model';
 
 export class PlaystationAccessory {
