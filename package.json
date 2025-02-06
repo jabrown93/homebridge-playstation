@@ -3,6 +3,7 @@
   "displayName": "Playstation",
   "version": "1.0.0",
   "description": "Playstation integration for Homebridge",
+  "type": "module",
   "keywords": [
     "homebridge-plugin"
   ],
