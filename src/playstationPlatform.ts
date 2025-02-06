@@ -8,7 +8,7 @@ import {
 } from 'homebridge';
 
 import { PlaystationAccessory } from './playstationAccessory.js';
-import { Discovery } from 'playactor/dist/discovery';
+import { Discovery } from 'playactor/dist/discovery.js';
 
 export interface PlaystationPlatformConfig extends PlatformConfig {
   pollInterval?: number;

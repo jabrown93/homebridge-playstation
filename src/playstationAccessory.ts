@@ -14,7 +14,7 @@ import {
 
 import { PlaystationPlatform } from './playstationPlatform.js';
 import { PLUGIN_NAME } from './settings.js';
-import { IDeviceConnection } from 'playactor/dist/connection/model';
+import { IDeviceConnection } from 'playactor/dist/connection/model.js';
 
 export class PlaystationAccessory {
   private readonly accessory: PlatformAccessory;

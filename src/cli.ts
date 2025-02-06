@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console */
-import { DeviceOptions } from 'playactor/dist/cli/options';
-import { Discovery } from 'playactor/dist/discovery';
+import { DeviceOptions } from 'playactor/dist/cli/options.js';
+import { Discovery } from 'playactor/dist/discovery.js';
 import readline from 'readline';
 
 const connect = async deviceId => {
