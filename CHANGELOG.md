@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.3](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.2...v1.1.3) (2025-02-06)
+
+### Bug Fixes
+
+* fix log call ([9306784](https://github.com/jabrown93/homebridge-playstation/commit/93067841cbd93a9020eed1047c422309fa790099))
+
 ## [1.1.2](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.1...v1.1.2) (2025-02-06)
 
 ### Bug Fixes
