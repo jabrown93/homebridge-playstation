@@ -15,6 +15,7 @@ import {
 import { PlaystationPlatform } from './playstationPlatform.js';
 import { PLUGIN_NAME } from './settings.js';
 import { IDeviceConnection } from 'playactor/dist/connection/model.js';
+import { PendingDevice } from 'playactor/dist/device/pending';
 
 export class PlaystationAccessory {
   private readonly accessory: PlatformAccessory;
@@ -38,6 +39,8 @@ export class PlaystationAccessory {
 
   private connection: IDeviceConnection | undefined;
 
+  private readonly device: PendingDevice;
+
   private readonly LOCK_ERROR_MESSGAE =
     "Lock is active, ignoring request.\nYou're experiencing this because the previous operation is still in " +
     'progress, or, less likely because the cleanup of the previous connection failed.\nThis is a Playstation ' +
@@ -54,6 +57,7 @@ export class PlaystationAccessory {
     this.api = this.platform.api;
 
     const uuid = this.api.hap.uuid.generate(deviceInformation.id);
+    this.device = Device.withId(deviceInformation.id);
     const overrides = this.getOverrides();
 
     const deviceName = overrides?.name || deviceInformation.name;
@@ -119,6 +123,10 @@ export class PlaystationAccessory {
     this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
   }
 
+  public async init() {
+    await this.device.discover();
+  }
+
   private getOverrides() {
     const overrides = this.platform.config.overrides || [];
     return overrides.find(
@@ -164,14 +172,6 @@ export class PlaystationAccessory {
     this.titleIDs.push(titleId);
   }
 
-  private async discoverDevice() {
-    // Wrapper to get the device and making sure you always call .discover() before using the device,
-    // otherwise you will get an "Error: Unexpected discovery message"
-    const device = Device.withId(this.deviceInformation.id);
-    this.deviceInformation = await device.discover();
-    return device;
-  }
-
   private notifyCharacteristicsUpdate() {
     this.tvService.updateCharacteristic(
       this.platform.Characteristic.Active,
@@ -191,13 +191,15 @@ export class PlaystationAccessory {
 
   private async updateDeviceInformation(force = false) {
     if (this.lockUpdate && !force) {
+      this.log.debug('Lock is active, skipping update');
       return;
     }
+    this.log('Updating device information...');
 
     this.lockUpdate = true;
 
     try {
-      await this.discoverDevice();
+      this.deviceInformation = await this.device.discover();
     } catch (err) {
       this.log.error((err as Error).message);
       // If we can't discover the device, it's probably OFF
@@ -228,7 +230,7 @@ export class PlaystationAccessory {
     }
   }
 
-  private setOn(value: CharacteristicValue) {
+  private async setOn(value: CharacteristicValue) {
     this.log.debug('setOn:', value);
 
     if (this.lockSetOn) {
@@ -242,39 +244,36 @@ export class PlaystationAccessory {
 
     this.addLocks();
 
-    this.discoverDevice()
-      .then(async device => {
-        if (
-          (value && this.deviceInformation.status === DeviceStatus.AWAKE) ||
-          (!value && this.deviceInformation.status === DeviceStatus.STANDBY)
-        ) {
-          this.log.debug('Already in desired state');
-          this.notifyCharacteristicsUpdate();
-          return;
-        }
+    if (
+      (value && this.deviceInformation.status === DeviceStatus.AWAKE) ||
+      (!value && this.deviceInformation.status === DeviceStatus.STANDBY)
+    ) {
+      this.log.debug('Already in desired state');
+      this.notifyCharacteristicsUpdate();
+      return;
+    }
 
-        if (value) {
-          this.log.debug('Waking device...');
-          await device.wake();
-        } else {
-          this.log.debug('Opening connection...');
-          this.connection = await device.openConnection({
-            socket: {
-              connectTimeoutMillis: 10_000,
-              maxRetries: 2,
-              retryBackoffMillis: 1000,
-            },
-          });
-          this.log.debug('Standby device...');
-          await this.connection.standby();
-        }
-      })
-      .catch(err => {
-        this.log.error((err as Error).message);
-      })
-      .finally(() => {
-        this.releaseLocks();
-      });
+    try {
+      if (value) {
+        this.log.debug('Waking device...');
+        await this.device.wake();
+      } else {
+        this.log.debug('Opening connection...');
+        this.connection = await this.device.openConnection({
+          socket: {
+            connectTimeoutMillis: 10_000,
+            maxRetries: 2,
+            retryBackoffMillis: 1000,
+          },
+        });
+        this.log.debug('Standby device...');
+        await this.connection.standby();
+      }
+    } catch (err) {
+      this.log.error((err as Error).message);
+    } finally {
+      this.releaseLocks();
+    }
   }
 
   private async getOn(): Promise<CharacteristicValue> {
@@ -299,34 +298,29 @@ export class PlaystationAccessory {
     }
 
     this.addLocks();
+    try {
+      if (
+        this.deviceInformation.extras['running-app-titleid'] === requestedTitle
+      ) {
+        this.log.debug('Title already running');
+        this.notifyCharacteristicsUpdate();
+        return;
+      }
 
-    this.discoverDevice()
-      .then(async device => {
-        if (
-          this.deviceInformation.extras['running-app-titleid'] ===
-          requestedTitle
-        ) {
-          this.log.debug('Title already running');
-          this.notifyCharacteristicsUpdate();
-          return;
-        }
-
-        this.log.debug(`Starting title ${requestedTitle} ...`);
-        this.connection = await device.openConnection({
-          socket: {
-            connectTimeoutMillis: 10_000,
-            maxRetries: 2,
-            retryBackoffMillis: 1000,
-          },
-        });
-
-        await this.connection.startTitleId?.(requestedTitle);
-      })
-      .catch(err => {
-        this.log.error((err as Error).message);
-      })
-      .finally(() => {
-        this.releaseLocks();
+      this.log.debug(`Starting title ${requestedTitle} ...`);
+      this.connection = await this.device.openConnection({
+        socket: {
+          connectTimeoutMillis: 10_000,
+          maxRetries: 2,
+          retryBackoffMillis: 1000,
+        },
       });
+
+      await this.connection.startTitleId?.(requestedTitle);
+    } catch (err) {
+      this.log.error((err as Error).message);
+    } finally {
+      this.releaseLocks();
+    }
   }
 }

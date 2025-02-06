@@ -56,6 +56,7 @@ export class PlaystationPlatform implements DynamicPlatformPlugin {
     for await (const deviceInformation of devices) {
       this.log.debug('Discovered device:', JSON.stringify(deviceInformation));
       const accessory = new PlaystationAccessory(this, deviceInformation);
+      await accessory.init();
       this.playstationAccessories.set(deviceInformation.id, accessory);
     }
     this.log.debug('Finished discovering devices');
