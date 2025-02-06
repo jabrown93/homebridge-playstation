@@ -14,6 +14,7 @@ import {
 
 import { PlaystationPlatform } from "./playstationPlatform";
 import { PLUGIN_NAME } from "./settings";
+import { IDeviceConnection } from "playactor/dist/connection/model";
 
 export class PlaystationAccessory {
   private readonly accessory: PlatformAccessory;
@@ -35,6 +36,8 @@ export class PlaystationAccessory {
 
   // list of titles that can be started through Home app
   private titleIDs: unknown[] = [];
+
+  private connection: IDeviceConnection | undefined;
 
   constructor(
     private readonly platform: PlaystationPlatform,
@@ -98,7 +101,7 @@ export class PlaystationAccessory {
       .onSet(this.setTitleSwitchState.bind(this));
 
     this.tick = setInterval(
-      this.updateDeviceInformations.bind(this),
+      this.updateDeviceInformation.bind(this),
       this.platform.config.pollInterval || this.platform.kDefaultPollInterval
     );
 
@@ -114,8 +117,11 @@ export class PlaystationAccessory {
 
   private setTitleList() {
     // if nothing selected yet, add a placeholder
-    this.addTitleToList("CUSAXXXXXX", "---", 0);
-    const titleList = this.platform.config.apps || [];
+    this.addTitleToList("CUSAXXXXXX", "", 0);
+    const titleList = this.platform.config.apps ?? [];
+    if (titleList.length === 0) {
+      this.log.warn(`No apps configured, setting up a placeholder`);
+    }
     titleList.forEach((title, index) => {
       this.log.debug(`Adding input for title: `, title);
       this.addTitleToList(title.id, title.name, index + 1);
@@ -170,7 +176,7 @@ export class PlaystationAccessory {
     this.log.debug(`Device status updated to:`, this.deviceInformation.status);
   }
 
-  private async updateDeviceInformations(force = false) {
+  private async updateDeviceInformation(force = false) {
     if (this.lockUpdate && !force) {
       return;
     }
@@ -204,6 +210,9 @@ export class PlaystationAccessory {
     if (this.lockTimeout) {
       clearTimeout(this.lockTimeout);
     }
+    if (this.connection) {
+      this.connection.close();
+    }
   }
 
   private setOn(value: CharacteristicValue) {
@@ -225,9 +234,9 @@ export class PlaystationAccessory {
     this.discoverDevice()
       .then(async (device) => {
         if (
-          (value == true &&
+          (value &&
             this.deviceInformation.status === DeviceStatus.AWAKE) ||
-          (value == false &&
+          (!value &&
             this.deviceInformation.status === DeviceStatus.STANDBY)
         ) {
           this.log.debug(`Already in desired state`);
@@ -235,21 +244,15 @@ export class PlaystationAccessory {
           return;
         }
 
-        this.log.debug(`Opening connection...`);
-        const connection = await device.openConnection();
-
         if (value) {
           this.log.debug(`Waking device...`);
           await device.wake();
         } else {
+          this.log.debug(`Opening connection...`);
+          this.connection = await device.openConnection();
           this.log.debug(`Standby device...`);
-          await connection.standby();
+          await this.connection.standby();
         }
-
-        this.log.debug(`Closing connection...`);
-        await connection.close();
-
-        this.log.debug(`Connection closed`);
       })
       .catch((err) => {
         this.log.error((err as Error).message);
@@ -296,14 +299,9 @@ export class PlaystationAccessory {
         }
 
         this.log.debug(`Starting title ${requestedTitle} ...`);
-        const connection = await device.openConnection();
+        this.connection = await device.openConnection();
 
-        await connection.startTitleId?.(requestedTitle);
-
-        this.log.debug(`Closing connection...`);
-        await connection.close();
-
-        this.log.debug(`Connection closed`);
+        await this.connection.startTitleId?.(requestedTitle);
       })
       .catch((err) => {
         this.log.error((err as Error).message);
