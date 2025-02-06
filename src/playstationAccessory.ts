@@ -15,7 +15,6 @@ import {
 import { PlaystationPlatform } from './playstationPlatform.js';
 import { PLUGIN_NAME } from './settings.js';
 import { IDeviceConnection } from 'playactor/dist/connection/model.js';
-import { PendingDevice } from 'playactor/dist/device/pending';
 
 export class PlaystationAccessory {
   private readonly accessory: PlatformAccessory;
@@ -32,14 +31,12 @@ export class PlaystationAccessory {
   private tick: NodeJS.Timeout | undefined;
 
   private lockTimeout: NodeJS.Timeout | undefined;
-  private readonly kLockTimeout = 40_000;
+  private readonly kLockTimeout = 30_000;
 
   // list of titles that can be started through Home app
   private titleIDs: unknown[] = [];
 
   private connection: IDeviceConnection | undefined;
-
-  private readonly device: PendingDevice;
 
   private readonly LOCK_ERROR_MESSGAE =
     "Lock is active, ignoring request.\nYou're experiencing this because the previous operation is still in " +
@@ -57,7 +54,6 @@ export class PlaystationAccessory {
     this.api = this.platform.api;
 
     const uuid = this.api.hap.uuid.generate(deviceInformation.id);
-    this.device = Device.withId(deviceInformation.id);
     const overrides = this.getOverrides();
 
     const deviceName = overrides?.name || deviceInformation.name;
@@ -121,10 +117,6 @@ export class PlaystationAccessory {
 
     this.log.debug('Accessory created, publishing...');
     this.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
-  }
-
-  public async init() {
-    await this.device.discover();
   }
 
   private getOverrides() {
@@ -199,9 +191,14 @@ export class PlaystationAccessory {
     this.lockUpdate = true;
 
     try {
-      this.deviceInformation = await this.device.discover();
+      const device = Device.withId(this.deviceInformation.id);
+      this.deviceInformation = await device.discover();
+      this.log.debug(
+        'Device information updated:',
+        JSON.stringify(this.deviceInformation)
+      );
     } catch (err) {
-      this.log.error((err as Error).message);
+      this.log.error('Error updating', err);
       // If we can't discover the device, it's probably OFF
       this.deviceInformation.status = DeviceStatus.STANDBY;
     } finally {
@@ -231,35 +228,35 @@ export class PlaystationAccessory {
   }
 
   private async setOn(value: CharacteristicValue) {
-    this.log.debug('setOn:', value);
-
-    if (this.lockSetOn) {
-      this.log.info(this.LOCK_ERROR_MESSGAE);
-      throw new this.api.hap.HapStatusError(
-        this.api.hap.HAPStatus.RESOURCE_BUSY
-      );
-    }
-
-    this.log.debug('Discovering device...');
-
-    this.addLocks();
-
-    if (
-      (value && this.deviceInformation.status === DeviceStatus.AWAKE) ||
-      (!value && this.deviceInformation.status === DeviceStatus.STANDBY)
-    ) {
-      this.log.debug('Already in desired state');
-      this.notifyCharacteristicsUpdate();
-      return;
-    }
-
     try {
+      this.log.debug('setOn:', value);
+
+      if (this.lockSetOn) {
+        this.log.info(this.LOCK_ERROR_MESSGAE);
+        throw new this.api.hap.HapStatusError(
+          this.api.hap.HAPStatus.RESOURCE_BUSY
+        );
+      }
+
+      this.log.debug('Discovering device...');
+
+      this.addLocks();
+      const device = Device.withId(this.deviceInformation.id);
+      this.deviceInformation = await device.discover();
+      if (
+        (value && this.deviceInformation.status === DeviceStatus.AWAKE) ||
+        (!value && this.deviceInformation.status === DeviceStatus.STANDBY)
+      ) {
+        this.log.debug('Already in desired state');
+        this.notifyCharacteristicsUpdate();
+        return;
+      }
       if (value) {
         this.log.debug('Waking device...');
-        await this.device.wake();
+        return await device.wake();
       } else {
         this.log.debug('Opening connection...');
-        this.connection = await this.device.openConnection({
+        this.connection = await device.openConnection({
           socket: {
             connectTimeoutMillis: 10_000,
             maxRetries: 2,
@@ -267,10 +264,10 @@ export class PlaystationAccessory {
           },
         });
         this.log.debug('Standby device...');
-        await this.connection.standby();
+        return await this.connection.standby();
       }
     } catch (err) {
-      this.log.error((err as Error).message);
+      this.log.error('Error setting status', err);
     } finally {
       this.releaseLocks();
     }
@@ -281,24 +278,25 @@ export class PlaystationAccessory {
   }
 
   private async setTitleSwitchState(value: CharacteristicValue) {
-    this.log.debug('setTitleSwitchState: ', value);
-
-    const requestedTitle = (this.titleIDs[value as number] as string) || null;
-
-    if (!requestedTitle) {
-      this.log.debug('No title found for index: ', value);
-      return;
-    }
-
-    if (this.lockSetOn) {
-      this.log.info(this.LOCK_ERROR_MESSGAE);
-      throw new this.api.hap.HapStatusError(
-        this.api.hap.HAPStatus.RESOURCE_BUSY
-      );
-    }
-
-    this.addLocks();
     try {
+      this.log.debug('setTitleSwitchState: ', value);
+
+      const requestedTitle = (this.titleIDs[value as number] as string) || null;
+
+      if (!requestedTitle) {
+        this.log.debug('No title found for index: ', value);
+        return;
+      }
+
+      if (this.lockSetOn) {
+        this.log.info(this.LOCK_ERROR_MESSGAE);
+        this.tvService.updateCharacteristic(
+          this.api.hap.Characteristic.Active,
+          new this.api.hap.HapStatusError(this.api.hap.HAPStatus.RESOURCE_BUSY)
+        );
+      }
+
+      this.addLocks();
       if (
         this.deviceInformation.extras['running-app-titleid'] === requestedTitle
       ) {
@@ -306,9 +304,9 @@ export class PlaystationAccessory {
         this.notifyCharacteristicsUpdate();
         return;
       }
-
+      const device = Device.withId(this.deviceInformation.id);
       this.log.debug(`Starting title ${requestedTitle} ...`);
-      this.connection = await this.device.openConnection({
+      this.connection = await device.openConnection({
         socket: {
           connectTimeoutMillis: 10_000,
           maxRetries: 2,

@@ -89,7 +89,7 @@
     "eslint-plugin-json": "^4.0.1",
     "eslint-plugin-unicorn": "latest",
     "homebridge": "^2.0.0-beta.27",
-    "homebridge-config-ui-x": "^5.0.0-beta.42",
+    "homebridge-config-ui-x": "^4.69.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.3.0",
     "nodemon": "^3.1.9",
