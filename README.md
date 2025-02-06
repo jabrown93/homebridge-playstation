@@ -4,8 +4,6 @@
 
 _Hey Siri, turn on Playstation_ finally possible!
 
-[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
-
 ![IMG_2114](https://user-images.githubusercontent.com/839700/153052274-c406ef19-e9f4-41b0-bb66-78134069021d.jpg)
 
 This integration exposes a Switch service that can be used to switch on/off your PS4/PS5, and determine its current state.
@@ -17,7 +15,7 @@ Most of the work is done by the amazing [playactor](https://github.com/dhleong/p
 You can install it via Homebridge UI or manually using:
 
 ```bash
-npm -g install homebridge-playstation
+npm -g install @jabrown93/homebridge-playstation
 ```
 
 ## Configuration
@@ -38,7 +36,7 @@ You can do this by using the Homebridge UI terminal or an SSH session and manual
 
 - Restart the HomeBridge instance
 
-- At boot, you should see a message like `"Please add [PS5 XYZ] manually in Home app. Setup Code: 111-22-333"` in the  logs; open the Home app and add your PlayStation as an extra accessory using "Add Accessory" in the top-right menu
+- At boot, you should see a message like `"Please add [PS5 XYZ] manually in Home app. Setup Code: 111-22-333"` in the logs; open the Home app and add your PlayStation as an extra accessory using "Add Accessory" in the top-right menu
 
 ## Troubleshooting
 

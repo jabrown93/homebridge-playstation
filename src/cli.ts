@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
-import { DeviceOptions } from "playactor/dist/cli/options";
-import { Discovery } from "playactor/dist/discovery";
-import readline from "readline";
+/* eslint-disable no-console */
+import { DeviceOptions } from 'playactor/dist/cli/options';
+import { Discovery } from 'playactor/dist/discovery';
+import readline from 'readline';
 
-const connect = async (deviceId) => {
+const connect = async deviceId => {
   try {
     const opt = new DeviceOptions();
     opt.dontAutoOpenUrls = true;
@@ -15,7 +16,7 @@ const connect = async (deviceId) => {
     const device = await opt.findDevice();
     const conn = await device.openConnection();
     console.log(
-      "Connection successful, wait a bit so we can safely close the connection..."
+      'Connection successful, wait a bit so we can safely close the connection...'
     );
     await conn.close();
 
@@ -27,16 +28,16 @@ const connect = async (deviceId) => {
   }
 };
 
-const confirm = (deviceName) => {
+const confirm = deviceName => {
   const input = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  return new Promise((resolve) => {
-    input.question(`Authenticate to ${deviceName}? (y/n) `, (response) => {
+  return new Promise(resolve => {
+    input.question(`Authenticate to ${deviceName}? (y/n) `, response => {
       input.close();
-      resolve(response.toLowerCase() === "y");
+      resolve(response.toLowerCase() === 'y');
     });
   });
 };
@@ -47,25 +48,25 @@ const discover = async () => {
 
   let success = false;
   for await (const device of devices) {
-    console.log("Discovered device:", device);
+    console.log('Discovered device:', device);
     const confirmed = await confirm(device.name);
     if (confirmed) {
       // track if there were any successful connections
       success = (await connect(device.id)) || success;
     }
 
-    console.log("\nDiscovering next device...");
+    console.log('\nDiscovering next device...');
   }
 
   return success;
 };
 
 discover()
-  .then((success) => {
+  .then(success => {
     if (success) {
-      console.log("\nPlease restart Homebridge now!");
+      console.log('\nPlease restart Homebridge now!');
     } else {
-      console.error("\nDid not authenticate to any consoles.");
+      console.error('\nDid not authenticate to any consoles.');
     }
   })
-  .catch((err) => console.error(err));
+  .catch(err => console.error(err));

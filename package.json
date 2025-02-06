@@ -1,61 +1,109 @@
 {
+  "name": "@jabrown93/homebridge-playstation",
   "displayName": "Playstation",
-  "name": "homebridge-playstation",
-  "version": "1.6.2",
+  "version": "1.0.0",
   "description": "Playstation integration for Homebridge",
-  "license": "ISC",
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "bugs": {
+    "url": "https://github.com/jabrown93/homebridge-playstation/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kopiro/homebridge-playstation.git"
+    "url": "git://github.com/jabrown93/homebridge-playstation.git"
+  },
+  "license": "ISC",
+  "author": {
+    "email": "npm@jaredbrown.io",
+    "name": "Jared Brown",
+    "url": "https://github.com/jabrwn93"
+  },
+  "contributors": [
+    {
+      "name": "Flavio De Stefano",
+      "email": "destefano.flavio@gmail.com",
+      "url": "https://www.kopiro.me"
+    }
+  ],
+  "main": "dist/index.js",
+  "bin": {
+    "homebridge-playstation-login": "./dist/cli.js"
   },
   "files": [
     "dist",
     "LICENSE",
     "config.schema.json"
   ],
-  "bugs": {
-    "url": "https://github.com/kopiro/homebridge-playstation/issues"
-  },
-  "author": {
-    "name": "Flavio De Stefano",
-    "email": "destefano.flavio@gmail.com",
-    "url": "https://www.kopiro.me"
-  },
-  "funding": {
-    "type": "paypal",
-    "url": "https://www.paypal.me/kopiro"
-  },
-  "engines": {
-    "node": "^18.13.0 || ^20.16.0 || ^22.5.1",
-    "homebridge": "^1.8.0 || ^2.0.0-beta.0"
-  },
-  "main": "dist/index.js",
   "scripts": {
-    "lint": "eslint src/**.ts --max-warnings=0",
-    "watch": "npm run build && npm link && nodemon",
-    "build": "rimraf ./dist && tsc",
-    "prepublishOnly": "npm run lint && npm run build"
+    "typecheck": "tsc --noEmit",
+    "prettier": "prettier --check .",
+    "format": "prettier --write .",
+    "lint": "eslint src/**.ts",
+    "lint:fix": "eslint src/**.ts --fix",
+    "clean": "rimraf ./dist",
+    "compile": "tsc",
+    "build": "rimraf ./dist && npm-run-all clean compile",
+    "watch": "npm run setup-config && npm run build && npm link && nodemon",
+    "prepublishOnly": "npm-run-all prettier lint build",
+    "semantic-release": "cross-env semantic-release --no-ci",
+    "release": "npm-run-all build semantic-release",
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "prepare": "husky",
+    "tsc": "tsc --noEmit",
+    "setup-config": "if [ ! -f ./test/hbConfig/config.json ]; then cp ./test/hbConfig/config-template.json ./test/hbConfig/config.json; fi"
   },
-  "bin": {
-    "homebridge-playstation-login": "./dist/cli.js"
+  "lint-staged": {
+    "*.{js,mjs,ts,json,md}": [
+      "eslint src/**.ts --fix --max-warnings=0 --no-warn-ignored",
+      "prettier --write"
+    ]
   },
-  "keywords": [
-    "homebridge-plugin"
-  ],
   "dependencies": {
     "playactor": "^0.4.1"
   },
   "devDependencies": {
-    "@types/node": "^22.5.4",
-    "@typescript-eslint/eslint-plugin": "^8.4.0",
-    "@typescript-eslint/parser": "^8.4.0",
-    "dotenv": "^16.4.5",
-    "eslint": "^9.10.0",
-    "homebridge": "^1.8.4",
-    "homebridge-config-ui-x": "^4.58.0",
-    "nodemon": "^3.1.4",
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.17.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.1",
+    "@semantic-release/npm": "^12.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
+    "@types/async": "^3.2.24",
+    "@types/async-lock": "^1.4.2",
+    "@types/eslint__js": "^8.42.3",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "cross-env": "^7.0.3",
+    "eslint": "9.19.0 ",
+    "eslint-plugin-ava": "^15.0.1",
+    "eslint-plugin-json": "^4.0.1",
+    "eslint-plugin-unicorn": "latest",
+    "homebridge": "^2.0.0-beta.27",
+    "homebridge-config-ui-x": "^5.0.0-beta.42",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "nodemon": "^3.1.9",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.1"
+  },
+  "engines": {
+    "homebridge": "^1.8.0 || ^2.0.0-beta.0",
+    "node": "^20.16.0 || ^22.5.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

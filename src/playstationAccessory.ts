@@ -5,26 +5,25 @@ import {
   Logging,
   PlatformAccessory,
   Service,
-} from "homebridge";
-import { Device } from "playactor/dist/device";
+} from 'homebridge';
+import { Device } from 'playactor/dist/device';
 import {
   DeviceStatus,
   IDiscoveredDevice,
-} from "playactor/dist/discovery/model";
+} from 'playactor/dist/discovery/model';
 
-import { PlaystationPlatform } from "./playstationPlatform";
-import { PLUGIN_NAME } from "./settings";
-import { IDeviceConnection } from "playactor/dist/connection/model";
+import { PlaystationPlatform } from './playstationPlatform';
+import { PLUGIN_NAME } from './settings';
+import { IDeviceConnection } from 'playactor/dist/connection/model';
 
 export class PlaystationAccessory {
   private readonly accessory: PlatformAccessory;
   private readonly tvService: Service;
 
-  private readonly api: API = this.platform.api;
+  private readonly api: API;
   private readonly log: Logging;
-  private readonly Service: typeof Service = this.platform.Service;
-  private readonly Characteristic: typeof Characteristic =
-    this.platform.Characteristic;
+  private readonly Service: typeof Service;
+  private readonly Characteristic: typeof Characteristic;
 
   private lockUpdate = false;
   private lockSetOn = false;
@@ -39,10 +38,21 @@ export class PlaystationAccessory {
 
   private connection: IDeviceConnection | undefined;
 
+  private readonly LOCK_ERROR_MESSGAE =
+    "Lock is active, ignoring request.\nYou're experiencing this because the previous operation is still in " +
+    'progress, or, less likely because the cleanup of the previous connection failed.\nThis is a Playstation ' +
+    'and RemotePlay limitation, as opening/closing connection can take up to 20 seconds, after which the lock ' +
+    "will be released anyway.\nTry to use the plugin as normal without hammering the switch button on/off, don't " +
+    'fall in the trap of the Heisenbug.';
+
   constructor(
     private readonly platform: PlaystationPlatform,
     private deviceInformation: IDiscoveredDevice
   ) {
+    this.Service = this.platform.Service;
+    this.Characteristic = this.platform.Characteristic;
+    this.api = this.platform.api;
+
     const uuid = this.api.hap.uuid.generate(deviceInformation.id);
     const overrides = this.getOverrides();
 
@@ -61,7 +71,7 @@ export class PlaystationAccessory {
 
     this.accessory
       .getService(this.Service.AccessoryInformation)!
-      .setCharacteristic(this.Characteristic.Manufacturer, "Sony")
+      .setCharacteristic(this.Characteristic.Manufacturer, 'Sony')
       .setCharacteristic(this.Characteristic.Model, deviceInformation.type)
       .setCharacteristic(this.Characteristic.SerialNumber, deviceInformation.id)
       .setCharacteristic(
@@ -89,7 +99,7 @@ export class PlaystationAccessory {
     this.tvService
       .getCharacteristic(this.Characteristic.RemoteKey)
       .onSet((newValue: CharacteristicValue) => {
-        this.log.debug(`Set RemoteKey is not implemented yet`, newValue);
+        this.log.debug('Set RemoteKey is not implemented yet', newValue);
       });
 
     this.tvService.setCharacteristic(this.Characteristic.ActiveIdentifier, 0);
@@ -111,19 +121,19 @@ export class PlaystationAccessory {
   private getOverrides() {
     const overrides = this.platform.config.overrides || [];
     return overrides.find(
-      (override) => override.deviceId === this.deviceInformation.id
+      override => override.deviceId === this.deviceInformation.id
     );
   }
 
   private setTitleList() {
     // if nothing selected yet, add a placeholder
-    this.addTitleToList("CUSAXXXXXX", "", 0);
+    this.addTitleToList('CUSAXXXXXX', '', 0);
     const titleList = this.platform.config.apps ?? [];
     if (titleList.length === 0) {
-      this.log.warn(`No apps configured, setting up a placeholder`);
+      this.log.warn('No apps configured, setting up a placeholder');
     }
     titleList.forEach((title, index) => {
-      this.log.debug(`Adding input for title: `, title);
+      this.log.debug('Adding input for title: ', title);
       this.addTitleToList(title.id, title.name, index + 1);
     });
   }
@@ -162,18 +172,20 @@ export class PlaystationAccessory {
   }
 
   private notifyCharacteristicsUpdate() {
-    this.tvService
-      .getCharacteristic(this.platform.Characteristic.Active)
-      .updateValue(this.deviceInformation.status === DeviceStatus.AWAKE);
+    this.tvService.updateCharacteristic(
+      this.platform.Characteristic.Active,
+      this.deviceInformation.status === DeviceStatus.AWAKE
+    );
 
     const runningAppTitle = this.titleIDs.indexOf(
-      this.deviceInformation.extras["running-app-titleid"] || 0
+      this.deviceInformation.extras['running-app-titleid'] || 0
     );
-    this.tvService
-      .getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
-      .updateValue(runningAppTitle == -1 ? 0 : runningAppTitle);
+    this.tvService.updateCharacteristic(
+      this.platform.Characteristic.ActiveIdentifier,
+      runningAppTitle === -1 ? 0 : runningAppTitle
+    );
 
-    this.log.debug(`Device status updated to:`, this.deviceInformation.status);
+    this.log.debug('Device status updated to:', this.deviceInformation.status);
   }
 
   private async updateDeviceInformation(force = false) {
@@ -199,7 +211,7 @@ export class PlaystationAccessory {
     this.lockSetOn = true;
     this.lockUpdate = true;
     this.lockTimeout = setTimeout(() => {
-      this.log.debug(`Removing locks due to timeout`);
+      this.log.debug('Removing locks due to timeout');
       this.releaseLocks();
     }, this.kLockTimeout);
   }
@@ -216,45 +228,41 @@ export class PlaystationAccessory {
   }
 
   private setOn(value: CharacteristicValue) {
-    this.log.debug(`setOn:`, value);
+    this.log.debug('setOn:', value);
 
     if (this.lockSetOn) {
-      this.log.info(
-        `Lock is active, ignoring request.\nYou're experiencing this because the previous operation is still in progress, or, less likely because the cleanup of the previous connection failed.\nThis is a Playstation and RemotePlay limitation, as opening/closing connection can take up to 20 seconds, after which the lock will be released anyway.\nTry to use the plugin as normal without hammering the switch button on/off, don't fall in the trap of the Heisenbug.`
-      );
+      this.log.info(this.LOCK_ERROR_MESSGAE);
       throw new this.api.hap.HapStatusError(
         this.api.hap.HAPStatus.RESOURCE_BUSY
       );
     }
 
-    this.log.debug("Discovering device...");
+    this.log.debug('Discovering device...');
 
     this.addLocks();
 
     this.discoverDevice()
-      .then(async (device) => {
+      .then(async device => {
         if (
-          (value &&
-            this.deviceInformation.status === DeviceStatus.AWAKE) ||
-          (!value &&
-            this.deviceInformation.status === DeviceStatus.STANDBY)
+          (value && this.deviceInformation.status === DeviceStatus.AWAKE) ||
+          (!value && this.deviceInformation.status === DeviceStatus.STANDBY)
         ) {
-          this.log.debug(`Already in desired state`);
+          this.log.debug('Already in desired state');
           this.notifyCharacteristicsUpdate();
           return;
         }
 
         if (value) {
-          this.log.debug(`Waking device...`);
+          this.log.debug('Waking device...');
           await device.wake();
         } else {
-          this.log.debug(`Opening connection...`);
+          this.log.debug('Opening connection...');
           this.connection = await device.openConnection();
-          this.log.debug(`Standby device...`);
+          this.log.debug('Standby device...');
           await this.connection.standby();
         }
       })
-      .catch((err) => {
+      .catch(err => {
         this.log.error((err as Error).message);
       })
       .finally(() => {
@@ -267,19 +275,17 @@ export class PlaystationAccessory {
   }
 
   private async setTitleSwitchState(value: CharacteristicValue) {
-    this.log.debug(`setTitleSwitchState: `, value);
+    this.log.debug('setTitleSwitchState: ', value);
 
     const requestedTitle = (this.titleIDs[value as number] as string) || null;
 
     if (!requestedTitle) {
-      this.log.debug(`No title found for index: `, value);
+      this.log.debug('No title found for index: ', value);
       return;
     }
 
     if (this.lockSetOn) {
-      this.log.info(
-        `Lock is active, ignoring request.\nYou're experiencing this because the previous operation is still in progress, or, less likely because the cleanup of the previous connection failed.\nThis is a Playstation and RemotePlay limitation, as opening/closing connection can take up to 20 seconds, after which the lock will be released anyway.\nTry to use the plugin as normal without hammering the switch button on/off, don't fall in the trap of the Heisenbug.`
-      );
+      this.log.info(this.LOCK_ERROR_MESSGAE);
       throw new this.api.hap.HapStatusError(
         this.api.hap.HAPStatus.RESOURCE_BUSY
       );
@@ -288,12 +294,12 @@ export class PlaystationAccessory {
     this.addLocks();
 
     this.discoverDevice()
-      .then(async (device) => {
+      .then(async device => {
         if (
-          this.deviceInformation.extras["running-app-titleid"] ===
+          this.deviceInformation.extras['running-app-titleid'] ===
           requestedTitle
         ) {
-          this.log.debug(`Title already running`);
+          this.log.debug('Title already running');
           this.notifyCharacteristicsUpdate();
           return;
         }
@@ -303,7 +309,7 @@ export class PlaystationAccessory {
 
         await this.connection.startTitleId?.(requestedTitle);
       })
-      .catch((err) => {
+      .catch(err => {
         this.log.error((err as Error).message);
       })
       .finally(() => {
