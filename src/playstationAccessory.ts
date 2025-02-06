@@ -31,7 +31,7 @@ export class PlaystationAccessory {
   private tick: NodeJS.Timeout | undefined;
 
   private lockTimeout: NodeJS.Timeout | undefined;
-  private readonly kLockTimeout = 20_000;
+  private readonly kLockTimeout = 40_000;
 
   // list of titles that can be started through Home app
   private titleIDs: unknown[] = [];
@@ -258,7 +258,13 @@ export class PlaystationAccessory {
           await device.wake();
         } else {
           this.log.debug('Opening connection...');
-          this.connection = await device.openConnection();
+          this.connection = await device.openConnection({
+            socket: {
+              connectTimeoutMillis: 10_000,
+              maxRetries: 2,
+              retryBackoffMillis: 1000,
+            },
+          });
           this.log.debug('Standby device...');
           await this.connection.standby();
         }
@@ -306,7 +312,13 @@ export class PlaystationAccessory {
         }
 
         this.log.debug(`Starting title ${requestedTitle} ...`);
-        this.connection = await device.openConnection();
+        this.connection = await device.openConnection({
+          socket: {
+            connectTimeoutMillis: 10_000,
+            maxRetries: 2,
+            retryBackoffMillis: 1000,
+          },
+        });
 
         await this.connection.startTitleId?.(requestedTitle);
       })
