@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.5](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.4...v1.1.5) (2025-02-07)
+
+### Bug Fixes
+
+* use dedicated lock library and on/off changes take priority over background updates ([7b0b83e](https://github.com/jabrown93/homebridge-playstation/commit/7b0b83e8334a816f73cd9db8bea73baf00f3c917))
+
 ## [1.1.4](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.3...v1.1.4) (2025-02-06)
 
 ### Bug Fixes
