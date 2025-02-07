@@ -15,6 +15,8 @@ import {
 import { PlaystationPlatform } from './playstationPlatform.js';
 import { PLUGIN_NAME } from './settings.js';
 import { IDeviceConnection } from 'playactor/dist/connection/model.js';
+import AsyncLock, { AsyncLockOptions } from 'async-lock';
+import { ISocketConfig } from 'playactor/dist/socket/model';
 
 export class PlaystationAccessory {
   private readonly accessory: PlatformAccessory;
@@ -24,26 +26,22 @@ export class PlaystationAccessory {
   private readonly log: Logging;
   private readonly Service: typeof Service;
   private readonly Characteristic: typeof Characteristic;
-
-  private lockUpdate = false;
-  private lockSetOn = false;
-
-  private tick: NodeJS.Timeout | undefined;
-
-  private lockTimeout: NodeJS.Timeout | undefined;
-  private readonly kLockTimeout = 30_000;
+  private readonly lock: AsyncLock;
 
   // list of titles that can be started through Home app
   private titleIDs: unknown[] = [];
 
-  private connection: IDeviceConnection | undefined;
+  private readonly LOCK_OPTIONS: AsyncLockOptions = {
+    timeout: 25_000,
+    maxPending: 2,
+    maxExecutionTime: 20_000,
+  };
 
-  private readonly LOCK_ERROR_MESSGAE =
-    "Lock is active, ignoring request.\nYou're experiencing this because the previous operation is still in " +
-    'progress, or, less likely because the cleanup of the previous connection failed.\nThis is a Playstation ' +
-    'and RemotePlay limitation, as opening/closing connection can take up to 20 seconds, after which the lock ' +
-    "will be released anyway.\nTry to use the plugin as normal without hammering the switch button on/off, don't " +
-    'fall in the trap of the Heisenbug.';
+  private readonly SOCKET_OPTIONS: ISocketConfig = {
+    connectTimeoutMillis: 10_000,
+    maxRetries: 2,
+    retryBackoffMillis: 1000,
+  };
 
   constructor(
     private readonly platform: PlaystationPlatform,
@@ -52,6 +50,7 @@ export class PlaystationAccessory {
     this.Service = this.platform.Service;
     this.Characteristic = this.platform.Characteristic;
     this.api = this.platform.api;
+    this.lock = new AsyncLock();
 
     const uuid = this.api.hap.uuid.generate(deviceInformation.id);
     const overrides = this.getOverrides();
@@ -110,7 +109,7 @@ export class PlaystationAccessory {
       .getCharacteristic(this.Characteristic.ActiveIdentifier)
       .onSet(this.setTitleSwitchState.bind(this));
 
-    this.tick = setInterval(
+    setInterval(
       this.updateDeviceInformation.bind(this),
       this.platform.config.pollInterval || this.platform.kDefaultPollInterval
     );
@@ -181,96 +180,68 @@ export class PlaystationAccessory {
     this.log.debug('Device status updated to:', this.deviceInformation.status);
   }
 
-  private async updateDeviceInformation(force = false) {
-    if (this.lockUpdate && !force) {
-      this.log.debug('Lock is active, skipping update');
-      return;
-    }
-    this.log.debug('Updating device information...');
-
-    this.lockUpdate = true;
-
-    try {
-      const device = Device.withId(this.deviceInformation.id);
-      this.deviceInformation = await device.discover();
-      this.log.debug(
-        'Device information updated:',
-        JSON.stringify(this.deviceInformation)
-      );
-    } catch (err) {
-      this.log.error('Error updating', err);
-      // If we can't discover the device, it's probably OFF
-      this.deviceInformation.status = DeviceStatus.STANDBY;
-    } finally {
-      this.lockUpdate = false;
-      this.notifyCharacteristicsUpdate();
-    }
-  }
-
-  private addLocks() {
-    this.lockSetOn = true;
-    this.lockUpdate = true;
-    this.lockTimeout = setTimeout(() => {
-      this.log.debug('Removing locks due to timeout');
-      this.releaseLocks();
-    }, this.kLockTimeout);
-  }
-
-  private releaseLocks() {
-    this.lockSetOn = false;
-    this.lockUpdate = false;
-    if (this.lockTimeout) {
-      clearTimeout(this.lockTimeout);
-    }
-    if (this.connection) {
-      this.connection.close();
-    }
+  private async updateDeviceInformation() {
+    return this.lock
+      .acquire(
+        'update',
+        async () => {
+          const device = Device.withId(this.deviceInformation.id);
+          this.deviceInformation = await device.discover();
+          this.log.debug(
+            'Device information updated:',
+            JSON.stringify(this.deviceInformation)
+          );
+        },
+        this.LOCK_OPTIONS
+      )
+      .catch(err => {
+        this.log.error('Error updating', err);
+        // If we can't discover the device, it's probably OFF
+        this.deviceInformation.status = DeviceStatus.STANDBY;
+      })
+      .finally(() => this.notifyCharacteristicsUpdate());
   }
 
   private async setOn(value: CharacteristicValue) {
-    try {
-      this.log.debug('setOn:', value);
-
-      if (this.lockSetOn) {
-        this.log.info(this.LOCK_ERROR_MESSGAE);
-        throw new this.api.hap.HapStatusError(
-          this.api.hap.HAPStatus.RESOURCE_BUSY
-        );
-      }
-
-      this.log.debug('Discovering device...');
-
-      this.addLocks();
-      const device = Device.withId(this.deviceInformation.id);
-      this.deviceInformation = await device.discover();
-      if (
-        (value && this.deviceInformation.status === DeviceStatus.AWAKE) ||
-        (!value && this.deviceInformation.status === DeviceStatus.STANDBY)
-      ) {
-        this.log.debug('Already in desired state');
-        this.notifyCharacteristicsUpdate();
-        return;
-      }
-      if (value) {
-        this.log.debug('Waking device...');
-        return await device.wake();
-      } else {
-        this.log.debug('Opening connection...');
-        this.connection = await device.openConnection({
-          socket: {
-            connectTimeoutMillis: 10_000,
-            maxRetries: 2,
-            retryBackoffMillis: 1000,
-          },
-        });
-        this.log.debug('Standby device...');
-        return await this.connection.standby();
-      }
-    } catch (err) {
-      this.log.error('Error setting status', err);
-    } finally {
-      this.releaseLocks();
-    }
+    let connection: IDeviceConnection | undefined;
+    this.lock
+      .acquire(
+        'update',
+        async () => {
+          this.log.debug('setOn:', value);
+          this.log.debug('Discovering device...');
+          const device = Device.withId(this.deviceInformation.id);
+          this.deviceInformation = await device.discover();
+          if (
+            (value && this.deviceInformation.status === DeviceStatus.AWAKE) ||
+            (!value && this.deviceInformation.status === DeviceStatus.STANDBY)
+          ) {
+            this.log.debug('Already in desired state');
+            this.notifyCharacteristicsUpdate();
+            return;
+          }
+          if (value) {
+            this.log.debug('Waking device...');
+            return await device.wake().then(() => {
+              this.log.debug('Device is now awake');
+            });
+          }
+          this.log.debug('Opening connection...');
+          connection = await device.openConnection({
+            socket: this.SOCKET_OPTIONS,
+          });
+          this.log.debug('Standby device...');
+          return await connection.standby().then(() => {
+            this.log.debug('Device is now in standby');
+          });
+        },
+        { ...this.LOCK_OPTIONS, skipQueue: true }
+      )
+      .catch(err => {
+        this.log.error('Error setting status', err);
+      })
+      .finally(() => connection?.close());
+    this.notifyCharacteristicsUpdate();
   }
 
   private async getOn(): Promise<CharacteristicValue> {
@@ -278,47 +249,42 @@ export class PlaystationAccessory {
   }
 
   private async setTitleSwitchState(value: CharacteristicValue) {
-    try {
-      this.log.debug('setTitleSwitchState: ', value);
+    let connection: IDeviceConnection | undefined;
+    this.lock
+      .acquire(
+        'update',
+        async () => {
+          this.log.debug('setTitleSwitchState: ', value);
 
-      const requestedTitle = (this.titleIDs[value as number] as string) || null;
+          const requestedTitle =
+            (this.titleIDs[value as number] as string) || null;
 
-      if (!requestedTitle) {
-        this.log.debug('No title found for index: ', value);
-        return;
-      }
+          if (!requestedTitle) {
+            this.log.debug('No title found for index: ', value);
+            return;
+          }
 
-      if (this.lockSetOn) {
-        this.log.info(this.LOCK_ERROR_MESSGAE);
-        this.tvService.updateCharacteristic(
-          this.api.hap.Characteristic.Active,
-          new this.api.hap.HapStatusError(this.api.hap.HAPStatus.RESOURCE_BUSY)
-        );
-      }
+          if (
+            this.deviceInformation.extras['running-app-titleid'] ===
+            requestedTitle
+          ) {
+            this.log.debug('Title already running');
+            this.notifyCharacteristicsUpdate();
+            return;
+          }
+          const device = Device.withId(this.deviceInformation.id);
+          this.log.debug(`Starting title ${requestedTitle} ...`);
+          connection = await device.openConnection({
+            socket: this.SOCKET_OPTIONS,
+          });
 
-      this.addLocks();
-      if (
-        this.deviceInformation.extras['running-app-titleid'] === requestedTitle
-      ) {
-        this.log.debug('Title already running');
-        this.notifyCharacteristicsUpdate();
-        return;
-      }
-      const device = Device.withId(this.deviceInformation.id);
-      this.log.debug(`Starting title ${requestedTitle} ...`);
-      this.connection = await device.openConnection({
-        socket: {
-          connectTimeoutMillis: 10_000,
-          maxRetries: 2,
-          retryBackoffMillis: 1000,
+          await connection.startTitleId?.(requestedTitle);
         },
-      });
-
-      await this.connection.startTitleId?.(requestedTitle);
-    } catch (err) {
-      this.log.error((err as Error).message);
-    } finally {
-      this.releaseLocks();
-    }
+        this.LOCK_OPTIONS
+      )
+      .catch(err => {
+        this.log.error('Error setting title switch state', err);
+      })
+      .finally(() => connection?.close());
   }
 }
