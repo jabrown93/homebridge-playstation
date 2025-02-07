@@ -33,7 +33,7 @@ export class PlaystationAccessory {
 
   private readonly LOCK_OPTIONS: AsyncLockOptions = {
     timeout: 25_000,
-    maxPending: 2,
+    maxPending: 3,
     maxExecutionTime: 20_000,
   };
 
@@ -192,7 +192,11 @@ export class PlaystationAccessory {
             JSON.stringify(this.deviceInformation)
           );
         },
-        this.LOCK_OPTIONS
+        {
+          ...this.LOCK_OPTIONS,
+          maxOccupationTime: 4500,
+          maxExecutionTime: 4000,
+        }
       )
       .catch(err => {
         this.log.error('Error updating', err);
@@ -240,8 +244,13 @@ export class PlaystationAccessory {
       .catch(err => {
         this.log.error('Error setting status', err);
       })
-      .finally(() => connection?.close());
-    this.notifyCharacteristicsUpdate();
+      .finally(() => {
+        connection?.close();
+        this.deviceInformation.status = value
+          ? DeviceStatus.AWAKE
+          : DeviceStatus.STANDBY;
+        this.notifyCharacteristicsUpdate();
+      });
   }
 
   private async getOn(): Promise<CharacteristicValue> {
