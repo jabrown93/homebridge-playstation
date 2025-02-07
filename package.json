@@ -1,7 +1,7 @@
 {
   "name": "@jabrown93/homebridge-playstation",
   "displayName": "Playstation",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Playstation integration for Homebridge",
   "type": "module",
   "keywords": [
