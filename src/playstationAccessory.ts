@@ -32,9 +32,9 @@ export class PlaystationAccessory {
   private readonly titleIDs: unknown[] = [];
 
   private readonly LOCK_OPTIONS: AsyncLockOptions = {
-    timeout: 25_000,
+    timeout: 30_000,
     maxPending: 3,
-    maxExecutionTime: 20_000,
+    maxExecutionTime: 25_000,
   };
 
   private readonly SOCKET_OPTIONS: ISocketConfig = {
@@ -195,6 +195,7 @@ export class PlaystationAccessory {
         },
         {
           ...this.LOCK_OPTIONS,
+          timeout: 5000,
           maxOccupationTime: 4500,
           maxExecutionTime: 4000,
         }
