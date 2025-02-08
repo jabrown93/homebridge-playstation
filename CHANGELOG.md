@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.9](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.8...v1.1.9) (2025-02-08)
+
+### Bug Fixes
+
+* tweak lock settings ([cdc1d2f](https://github.com/jabrown93/homebridge-playstation/commit/cdc1d2f90caba4639cff2b4b85ad8696a4f76249))
+
 ## [1.1.8](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.7...v1.1.8) (2025-02-08)
 
 ### Bug Fixes
