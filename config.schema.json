@@ -12,6 +12,36 @@
         "default": 5000,
         "description": "Determine how often should device information be fetched (in milliseconds)"
       },
+      "pollLockTimeout": {
+        "title": "Poll Lock Max Timeout (optional)",
+        "type": "integer",
+        "description": "Max time the plugin should spend acquiring lock and updating state (in milliseconds)"
+      },
+      "pollLockExecutionTimeout": {
+        "title": "Poll Lock Execution Interval (optional)",
+        "type": "integer",
+        "description": "How long should the plugin wait to finish an update before releasing the lock (in milliseconds)"
+      },
+      "pollLockOccupationTimeout": {
+        "title": "Poll Lock Acquire Timeout (optional)",
+        "type": "integer",
+        "description": "How long should the plugin wait to acquire the lock before giving up (in milliseconds)"
+      },
+      "writeLockTimeout": {
+        "title": "Write Lock Max Timeout (optional)",
+        "type": "integer",
+        "description": "Max time the plugin should spend acquiring lock and controlling console (in milliseconds)"
+      },
+      "writeLockExecutionTimeout": {
+        "title": "Write Lock Execution Timeout (optional)",
+        "type": "integer",
+        "description": "How long should the plugin wait to finish controlling the console before releasing the lock (in milliseconds)"
+      },
+      "writeLockOccupationTimeout": {
+        "title": "Write Lock Acquire Timeout (optional)",
+        "type": "integer",
+        "description": "How long should the plugin wait to acquire the lock before giving up (in milliseconds)"
+      },
       "overrides": {
         "title": "Overrides for default values of the console",
         "type": "array",

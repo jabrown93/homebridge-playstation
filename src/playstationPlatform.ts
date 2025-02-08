@@ -1,7 +1,6 @@
 import {
   API,
   Logger,
-  PlatformConfig,
   Service,
   Characteristic,
   DynamicPlatformPlugin,
@@ -10,12 +9,7 @@ import {
 
 import { PlaystationAccessory } from './playstationAccessory.js';
 import { Discovery } from 'playactor/dist/discovery.js';
-
-export interface PlaystationPlatformConfig extends PlatformConfig {
-  pollInterval?: number;
-  overrides?: Array<{ deviceId: string; name?: string }>;
-  apps?: Array<{ id: string; name: string }>;
-}
+import { PlaystationPlatformConfig } from './config.js';
 
 export class PlaystationPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;

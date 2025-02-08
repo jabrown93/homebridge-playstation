@@ -15,7 +15,7 @@ import {
 import { PlaystationPlatform } from './playstationPlatform.js';
 import { PLUGIN_NAME } from './settings.js';
 import { IDeviceConnection } from 'playactor/dist/connection/model.js';
-import AsyncLock, { AsyncLockOptions } from 'async-lock';
+import AsyncLock from 'async-lock';
 import { ISocketConfig } from 'playactor/dist/socket/model';
 
 export class PlaystationAccessory {
@@ -30,12 +30,6 @@ export class PlaystationAccessory {
 
   // list of titles that can be started through Home app
   private readonly titleIDs: unknown[] = [];
-
-  private readonly LOCK_OPTIONS: AsyncLockOptions = {
-    timeout: 30_000,
-    maxPending: 3,
-    maxExecutionTime: 25_000,
-  };
 
   private readonly SOCKET_OPTIONS: ISocketConfig = {
     connectTimeoutMillis: 10_000,
@@ -194,10 +188,9 @@ export class PlaystationAccessory {
           this.notifyCharacteristicsUpdate();
         },
         {
-          ...this.LOCK_OPTIONS,
-          timeout: 5000,
-          maxOccupationTime: 4500,
-          maxExecutionTime: 4000,
+          timeout: this.platform.config.pollLockTimeout ?? 5_000,
+          maxOccupationTime: this.platform.config.pollLockOccupationTimeout,
+          maxExecutionTime: this.platform.config.pollLockExecutionTimeout,
         }
       )
       .catch(err => {
@@ -209,12 +202,12 @@ export class PlaystationAccessory {
 
   private setOn(value: CharacteristicValue) {
     let connection: IDeviceConnection | undefined;
-    this.log.debug('Request to set power state to: ', value);
+    this.log.debug('Received request to set power state to: ', value);
     this.lock
       .acquire(
         'update',
         async () => {
-          this.log.debug('setOn:', value);
+          this.log.debug('Updating power state to: ', value);
           this.log.debug('Discovering device...');
           const device = Device.withId(this.deviceInformation.id);
           this.deviceInformation = await device.discover();
@@ -241,7 +234,14 @@ export class PlaystationAccessory {
             this.log.debug('Device is now in standby');
           });
         },
-        { ...this.LOCK_OPTIONS, skipQueue: true }
+        {
+          timeout: this.platform.config.writeLockTimeout ?? 30_000,
+          maxOccupationTime:
+            this.platform.config.writeLockOccupationTimeout ?? 30_000,
+          maxExecutionTime:
+            this.platform.config.writeLockExecutionTimeout ?? 30_000,
+          skipQueue: true,
+        }
       )
       .catch(err => {
         this.log.error('Error setting power state', err);
@@ -289,7 +289,13 @@ export class PlaystationAccessory {
           await connection.startTitleId?.(requestedTitle);
           this.notifyCharacteristicsUpdate();
         },
-        this.LOCK_OPTIONS
+        {
+          timeout: this.platform.config.writeLockTimeout ?? 30_000,
+          maxOccupationTime:
+            this.platform.config.writeLockOccupationTimeout ?? 30_000,
+          maxExecutionTime:
+            this.platform.config.writeLockExecutionTimeout ?? 30_000,
+        }
       )
       .catch(err => {
         this.log.error('Error setting title switch state', err);
