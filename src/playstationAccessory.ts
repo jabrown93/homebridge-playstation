@@ -2,7 +2,7 @@ import {
   API,
   Characteristic,
   CharacteristicValue,
-  Logging,
+  Logger,
   PlatformAccessory,
   Service,
 } from 'homebridge';
@@ -23,7 +23,7 @@ export class PlaystationAccessory {
   private readonly tvService: Service;
 
   private readonly api: API;
-  private readonly log: Logging;
+  private readonly log: Logger;
   private readonly Service: typeof Service;
   private readonly Characteristic: typeof Characteristic;
   private readonly lock: AsyncLock;
@@ -208,7 +208,7 @@ export class PlaystationAccessory {
 
   private setOn(value: CharacteristicValue) {
     let connection: IDeviceConnection | undefined;
-    this.log('Request to set power state to: ', value);
+    this.log.debug('Request to set power state to: ', value);
     this.lock
       .acquire(
         'update',
