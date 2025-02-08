@@ -29,7 +29,7 @@ export class PlaystationAccessory {
   private readonly lock: AsyncLock;
 
   // list of titles that can be started through Home app
-  private titleIDs: unknown[] = [];
+  private readonly titleIDs: unknown[] = [];
 
   private readonly LOCK_OPTIONS: AsyncLockOptions = {
     timeout: 25_000,
@@ -55,7 +55,7 @@ export class PlaystationAccessory {
     const uuid = this.api.hap.uuid.generate(deviceInformation.id);
     const overrides = this.getOverrides();
 
-    const deviceName = overrides?.name || deviceInformation.name;
+    const deviceName = overrides?.name ?? deviceInformation.name;
 
     // @ts-expect-error - private property
     this.log = {
@@ -111,7 +111,7 @@ export class PlaystationAccessory {
 
     setInterval(
       this.updateDeviceInformation.bind(this),
-      this.platform.config.pollInterval || this.platform.kDefaultPollInterval
+      this.platform.config.pollInterval ?? this.platform.kDefaultPollInterval
     );
 
     this.log.debug('Accessory created, publishing...');
@@ -180,8 +180,8 @@ export class PlaystationAccessory {
     this.log.debug('Device status updated to:', this.deviceInformation.status);
   }
 
-  private async updateDeviceInformation() {
-    return this.lock
+  private updateDeviceInformation() {
+    this.lock
       .acquire(
         'update',
         async () => {
@@ -191,6 +191,7 @@ export class PlaystationAccessory {
             'Device information updated:',
             JSON.stringify(this.deviceInformation)
           );
+          this.notifyCharacteristicsUpdate();
         },
         {
           ...this.LOCK_OPTIONS,
@@ -199,15 +200,15 @@ export class PlaystationAccessory {
         }
       )
       .catch(err => {
-        this.log.error('Error updating', err);
+        this.log.error('Error updating state from Playstation', err);
         // If we can't discover the device, it's probably OFF
         this.deviceInformation.status = DeviceStatus.STANDBY;
-      })
-      .finally(() => this.notifyCharacteristicsUpdate());
+      });
   }
 
-  private async setOn(value: CharacteristicValue) {
+  private setOn(value: CharacteristicValue) {
     let connection: IDeviceConnection | undefined;
+    this.log('Request to set power state to: ', value);
     this.lock
       .acquire(
         'update',
@@ -242,23 +243,20 @@ export class PlaystationAccessory {
         { ...this.LOCK_OPTIONS, skipQueue: true }
       )
       .catch(err => {
-        this.log.error('Error setting status', err);
+        this.log.error('Error setting power state', err);
       })
       .finally(() => {
         connection?.close();
-        this.deviceInformation.status = value
-          ? DeviceStatus.AWAKE
-          : DeviceStatus.STANDBY;
-        this.notifyCharacteristicsUpdate();
       });
   }
 
-  private async getOn(): Promise<CharacteristicValue> {
+  private getOn(): CharacteristicValue {
     return this.deviceInformation.status === DeviceStatus.AWAKE;
   }
 
-  private async setTitleSwitchState(value: CharacteristicValue) {
+  private setTitleSwitchState(value: CharacteristicValue) {
     let connection: IDeviceConnection | undefined;
+    this.log.debug('Received request to set title switch state to: ', value);
     this.lock
       .acquire(
         'update',
@@ -288,6 +286,7 @@ export class PlaystationAccessory {
           });
 
           await connection.startTitleId?.(requestedTitle);
+          this.notifyCharacteristicsUpdate();
         },
         this.LOCK_OPTIONS
       )
