@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.9...v1.2.0) (2025-02-08)
+
+### Features
+
+* customizable lock timeouts in config ([97945e1](https://github.com/jabrown93/homebridge-playstation/commit/97945e1939b8304b162e7898e37abba53cbc6c76))
+
 ## [1.1.9](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.8...v1.1.9) (2025-02-08)
 
 ### Bug Fixes
