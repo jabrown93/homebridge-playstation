@@ -78,7 +78,6 @@
     "@semantic-release/release-notes-generator": "^14.0.3",
     "@types/async": "^3.2.24",
     "@types/async-lock": "^1.4.2",
-    "@types/eslint__js": "^9.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.5",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
