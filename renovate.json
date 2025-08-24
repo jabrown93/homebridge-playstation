@@ -10,6 +10,7 @@
   "commitBodyTable": true,
   "prHourlyLimit": 10,
   "configMigration": true,
+  "forkProcessing": "enabled",
   "dependencyDashboardOSVVulnerabilitySummary": "all",
   "lockFileMaintenance": {
     "enabled": true,
