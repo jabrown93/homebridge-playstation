@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.2.0...v1.3.0) (2025-09-23)
+
+### Features
+
+* **deps:** update all non-major dependencies ([#36](https://github.com/jabrown93/homebridge-playstation/issues/36)) ([ea93d08](https://github.com/jabrown93/homebridge-playstation/commit/ea93d08ee29e97b2437bebf8c48ff0512134a63f))
+
 ## [1.2.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.1.9...v1.2.0) (2025-02-08)
 
 ### Features
