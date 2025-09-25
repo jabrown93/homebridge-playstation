@@ -1,5 +1,7 @@
 # Homebridge Playstation
 
+## WARNING: This plugin is not actively maintained except for automated dependnecy updates. Issues/bugs are unlikely to be addressed. Use at your own risk
+
 ### Playstation integration for Homebridge / HOOBS.
 
 _Hey Siri, turn on Playstation_ finally possible!
