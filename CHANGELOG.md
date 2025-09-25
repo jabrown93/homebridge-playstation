@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.5.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.4.0...v1.5.0) (2025-09-25)
+
+### Features
+
+* **deps:** update dependency lint-staged to v16.2.0 ([#39](https://github.com/jabrown93/homebridge-playstation/issues/39)) ([afe1d48](https://github.com/jabrown93/homebridge-playstation/commit/afe1d482427380a1efe28b2b2781bbd54efdf0d3))
+
 ## [1.4.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.3.0...v1.4.0) (2025-09-24)
 
 ### Features
