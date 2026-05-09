@@ -16,7 +16,7 @@ import { PlaystationPlatform } from './playstationPlatform.js';
 import { PLUGIN_NAME } from './settings.js';
 import { IDeviceConnection } from 'playactor/dist/connection/model.js';
 import AsyncLock from 'async-lock';
-import { ISocketConfig } from 'playactor/dist/socket/model';
+import type { ISocketConfig } from 'playactor/dist/socket/model.js';
 
 export class PlaystationAccessory {
   private readonly accessory: PlatformAccessory;
