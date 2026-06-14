@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.6.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.5.1...v1.6.0) (2026-06-14)
+
+### Features
+
+* **engines:** support Node 22 LTS alongside Node 24 ([#195](https://github.com/jabrown93/homebridge-playstation/issues/195)) ([3eeaf68](https://github.com/jabrown93/homebridge-playstation/commit/3eeaf6822eaf764339401aca8b183ea1dfac89da))
+
+### Bug Fixes
+
+* **engines:** tighten Node floors to 22.12.0 and first LTS 24.11.0 ([#196](https://github.com/jabrown93/homebridge-playstation/issues/196)) ([f2855d6](https://github.com/jabrown93/homebridge-playstation/commit/f2855d68545fbb7be5ff759690181923f1c1cf36))
+
 ## [1.5.1](https://github.com/jabrown93/homebridge-playstation/compare/v1.5.0...v1.5.1) (2025-09-25)
 
 ### Bug Fixes
