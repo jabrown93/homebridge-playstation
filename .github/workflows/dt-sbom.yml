@@ -7,8 +7,8 @@
 #   sbom   - hosted runner (UNTRUSTED): `npm ci` (which may run dependency
 #            lifecycle scripts) and the SBOM generator run here, never on the
 #            in-cluster runner. Emits sbom.cdx.json.
-#   upload - in-cluster arc-oss-homebridge-playstation runner: exchange this
-#            run's GitHub OIDC token for the Dependency-Track CI key via OpenBao
+#   upload - in-cluster arc-oss-homebridge-playstation runner: exchange this run's GitHub
+#            OIDC token for the Dependency-Track CI key via OpenBao
 #            (vault-action), then POST the SBOM. Project identity is taken from
 #            trusted GitHub context (github.repository / github.sha), NOT from
 #            anything the sbom job produced, so a compromised dependency can't
@@ -22,8 +22,8 @@
 #            github.com/jabrown93/homelab -> docs/dependency-track.md.
 #
 # push-to-main + manual only: never runs on pull_request, so fork PR code can't
-# reach the in-cluster runner. DT is visibility-only, so there is no PR gate to
-# lose by not scanning PRs.
+# reach the in-cluster runner. (PR license checks run via pr-license-check.yml,
+# which keeps fork PRs off the in-cluster runner.)
 name: Dependency-Track SBOM
 
 on:
@@ -38,7 +38,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
 
       - name: Set up Node.js
         uses: actions/setup-node@v6.4.0
@@ -53,6 +53,7 @@ jobs:
         run: |
           set -euo pipefail
           npx --yes @cyclonedx/cyclonedx-npm@4.2.1 \
+            --ignore-npm-errors \
             --output-format JSON \
             --output-file sbom.cdx.json
 
