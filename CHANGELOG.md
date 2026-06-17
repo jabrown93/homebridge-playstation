@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.6.0...v1.7.0) (2026-06-17)
+
+### Features
+
+* **ci:** upload CycloneDX SBOM to Dependency-Track ([#193](https://github.com/jabrown93/homebridge-playstation/issues/193)) ([695f658](https://github.com/jabrown93/homebridge-playstation/commit/695f658b484fe4c4a9a6824d5bd8caacddb40a1a))
+
 ## [1.6.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.5.1...v1.6.0) (2026-06-14)
 
 ### Features
