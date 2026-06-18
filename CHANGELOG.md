@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.1](https://github.com/jabrown93/homebridge-playstation/compare/v1.7.0...v1.7.1) (2026-06-18)
+
+### Bug Fixes
+
+* **dt-sbom:** read DT CI key from renamed OpenBao path ([#217](https://github.com/jabrown93/homebridge-playstation/issues/217)) ([41839ef](https://github.com/jabrown93/homebridge-playstation/commit/41839ef6d50966c6d9c8606f4097a0b5a2e0e985))
+
 ## [1.7.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.6.0...v1.7.0) (2026-06-17)
 
 ### Features
