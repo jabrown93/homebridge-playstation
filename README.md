@@ -1,5 +1,14 @@
 # Homebridge Playstation
 
+[![npm version](https://img.shields.io/npm/v/@jabrown93/homebridge-playstation)](https://www.npmjs.com/package/@jabrown93/homebridge-playstation)
+[![npm downloads](https://img.shields.io/npm/dt/@jabrown93/homebridge-playstation)](https://www.npmjs.com/package/@jabrown93/homebridge-playstation)
+[![npm weekly downloads](https://img.shields.io/npm/dw/@jabrown93/homebridge-playstation)](https://www.npmjs.com/package/@jabrown93/homebridge-playstation)
+[![license](https://img.shields.io/npm/l/@jabrown93/homebridge-playstation.svg)](https://github.com/jabrown93/homebridge-playstation/blob/main/LICENSE)
+[![Build](https://img.shields.io/github/actions/workflow/status/jabrown93/homebridge-playstation/build.yaml?label=build)](https://github.com/jabrown93/homebridge-playstation/actions/workflows/build.yaml)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/jabrown93/homebridge-playstation/codeql.yml?label=CodeQL)](https://github.com/jabrown93/homebridge-playstation/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/jabrown93/homebridge-playstation)](https://github.com/jabrown93/homebridge-playstation/releases)
+[![Issues](https://img.shields.io/github/issues/jabrown93/homebridge-playstation)](https://github.com/jabrown93/homebridge-playstation/issues)
+
 ## WARNING: This plugin is not actively maintained except for automated dependnecy updates. Issues/bugs are unlikely to be addressed. Use at your own risk
 
 ### Playstation integration for Homebridge / HOOBS.
