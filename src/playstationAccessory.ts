@@ -120,12 +120,14 @@ export class PlaystationAccessory {
   }
 
   private setTitleList() {
-    // if nothing selected yet, add a placeholder
-    this.addTitleToList('CUSAXXXXXX', '', 0);
     const titleList = this.platform.config.apps ?? [];
     if (titleList.length === 0) {
-      this.log.warn('No apps configured, setting up a placeholder');
+      this.log.warn('No apps configured, skipping title list setup');
+      return;
     }
+
+    // if nothing selected yet, add a placeholder
+    this.addTitleToList('CUSAXXXXXX', 'None', 0);
     titleList.forEach((title, index) => {
       this.log.debug('Adding input for title: ', title);
       this.addTitleToList(title.id, title.name, index + 1);
