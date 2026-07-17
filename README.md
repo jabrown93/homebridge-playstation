@@ -11,6 +11,8 @@
 
 ## WARNING: This plugin is not actively maintained except for automated dependency updates. Issues/bugs are unlikely to be addressed. Use at your own risk
 
+> Homebridge 1.x support is deprecated and will be removed in a future major release — please upgrade to Homebridge 2.x. Requires Node.js `^22.12.0`, `^24.11.0`, or `^26.0.0`.
+
 ### Playstation integration for Homebridge / HOOBS.
 
 _Hey Siri, turn on Playstation_ finally possible!
