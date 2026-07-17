@@ -38,7 +38,7 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "prettier": "prettier --check . || exit 0",
+    "prettier": "prettier --check .",
     "format": "prettier --write .",
     "lint": "eslint src/**.ts",
     "lint:fix": "eslint src/**.ts --fix",
@@ -46,13 +46,13 @@
     "compile": "tsc",
     "build": "rimraf ./dist && npm-run-all clean compile",
     "watch": "npm run setup-config && npm run build && npm link && nodemon",
-    "prepublishOnly": "npm-run-all prettier lint build",
     "semantic-release": "cross-env semantic-release --no-ci",
     "release": "npm-run-all build semantic-release",
     "test": "echo \"Error: no test specified\" && exit 0",
     "prepare": "husky",
     "tsc": "tsc --noEmit",
-    "setup-config": "if [ ! -f ./test/hbConfig/config.json ]; then cp ./test/hbConfig/config-template.json ./test/hbConfig/config.json; fi"
+    "setup-config": "if [ ! -f ./test/hbConfig/config.json ]; then cp ./test/hbConfig/config-template.json ./test/hbConfig/config.json; fi",
+    "prepack": "npm-run-all clean compile"
   },
   "lint-staged": {
     "*.{js,mjs,ts,json,md}": [
