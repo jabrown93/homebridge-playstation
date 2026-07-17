@@ -54,3 +54,5 @@ node_modules/
 .idea
 
 test/hbConfig
+
+**/.worktrees
