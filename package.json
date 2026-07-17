@@ -44,7 +44,7 @@
     "lint:fix": "eslint src/**.ts --fix",
     "clean": "rimraf ./dist",
     "compile": "tsc",
-    "build": "rimraf ./dist && npm-run-all clean compile",
+    "build": "npm-run-all clean compile",
     "watch": "npm run setup-config && npm run build && npm link && nodemon",
     "semantic-release": "cross-env semantic-release --no-ci",
     "release": "npm-run-all build semantic-release",
