@@ -5,7 +5,7 @@ on:
     - cron: '30 1 * * *'
 jobs:
   stale:
-    uses: jabrown93/.github/.github/workflows/stale.yml@71c3af9fc09ce87b086cc058773380acaf2b1299 # v1.2.0
+    uses: jabrown93/.github/.github/workflows/stale.yml@0393d3de51e508488e6bc5e1101bf509e6359c14 # v1.5.1
     permissions:
       actions: write
       issues: write
