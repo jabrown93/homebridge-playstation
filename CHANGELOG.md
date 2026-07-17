@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.3](https://github.com/jabrown93/homebridge-playstation/compare/v1.7.2...v1.7.3) (2026-07-17)
+
+### Bug Fixes
+
+* **release:** build in prepack instead of gating publish on checks ([#240](https://github.com/jabrown93/homebridge-playstation/issues/240)) ([01b0d46](https://github.com/jabrown93/homebridge-playstation/commit/01b0d467fd4022260b5c6540f278fc8f380f3892)), closes [jabrown93/.github#24](https://github.com/jabrown93/.github/issues/24)
+
 ## [1.7.2](https://github.com/jabrown93/homebridge-playstation/compare/v1.7.1...v1.7.2) (2026-07-17)
 
 ### Bug Fixes
