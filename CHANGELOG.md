@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.2](https://github.com/jabrown93/homebridge-playstation/compare/v1.7.1...v1.7.2) (2026-07-17)
+
+### Bug Fixes
+
+* **release:** restore changelog bodies by pinning conventionalcommits to v9 ([#239](https://github.com/jabrown93/homebridge-playstation/issues/239)) ([3b61b7d](https://github.com/jabrown93/homebridge-playstation/commit/3b61b7de50ec21d7a95dcd0600f905a95d8f70aa))
+
 ## [1.7.1](https://github.com/jabrown93/homebridge-playstation/compare/v1.7.0...v1.7.1) (2026-06-18)
 
 ### Bug Fixes
