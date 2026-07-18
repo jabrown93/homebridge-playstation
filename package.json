@@ -61,7 +61,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.1",
-    "@jabrown93/dev-config": "^1.1.0",
+    "@jabrown93/dev-config": "1.1.0",
     "@types/async": "3.2.25",
     "@types/async-lock": "1.4.2",
     "@types/js-yaml": "4.0.9",
