@@ -37,7 +37,6 @@
     "config.schema.json"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit",
     "prettier": "prettier --check .",
     "format": "prettier --write .",
     "lint": "eslint src/**.ts",
