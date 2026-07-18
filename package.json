@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/jabrown93/homebridge-playstation.git"
+    "url": "git+https://github.com/jabrown93/homebridge-playstation.git"
   },
   "license": "ISC",
   "author": {
     "email": "npm@jaredbrown.io",
     "name": "Jared Brown",
-    "url": "https://github.com/jabrwn93"
+    "url": "https://github.com/jabrown93"
   },
   "contributors": [
     {
@@ -28,6 +28,7 @@
     }
   ],
   "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "homebridge-playstation-login": "dist/cli.js"
   },
@@ -37,7 +38,6 @@
     "config.schema.json"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit",
     "prettier": "prettier --check .",
     "format": "prettier --write .",
     "lint": "eslint src/**.ts",
