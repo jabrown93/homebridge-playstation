@@ -67,7 +67,7 @@
     "@types/js-yaml": "4.0.9",
     "@types/node": "24.13.3",
     "cross-env": "10.1.0",
-    "eslint": "10.8.1",
+    "eslint": "10.9.0",
     "homebridge": "2.4.0",
     "homebridge-config-ui-x": "5.28.0",
     "husky": "9.1.7",
