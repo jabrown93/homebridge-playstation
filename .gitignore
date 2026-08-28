@@ -56,3 +56,4 @@ node_modules/
 test/hbConfig
 
 **/.worktrees
+.pi/
