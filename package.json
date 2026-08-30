@@ -1,7 +1,7 @@
 {
   "name": "@jabrown93/homebridge-playstation",
   "displayName": "Playstation",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "Playstation integration for Homebridge",
   "type": "module",
   "keywords": [
@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/jabrown93/homebridge-playstation.git"
+    "url": "git+https://github.com/jabrown93/homebridge-playstation.git"
   },
   "license": "ISC",
   "author": {
     "email": "npm@jaredbrown.io",
     "name": "Jared Brown",
-    "url": "https://github.com/jabrwn93"
+    "url": "https://github.com/jabrown93"
   },
   "contributors": [
     {
@@ -28,6 +28,7 @@
     }
   ],
   "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "homebridge-playstation-login": "dist/cli.js"
   },
@@ -37,72 +38,50 @@
     "config.schema.json"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit",
-    "prettier": "prettier --check . || exit 0",
+    "prettier": "prettier --check .",
     "format": "prettier --write .",
     "lint": "eslint src/**.ts",
     "lint:fix": "eslint src/**.ts --fix",
     "clean": "rimraf ./dist",
     "compile": "tsc",
-    "build": "rimraf ./dist && npm-run-all clean compile",
+    "build": "npm-run-all clean compile",
     "watch": "npm run setup-config && npm run build && npm link && nodemon",
-    "prepublishOnly": "npm-run-all prettier lint build",
     "semantic-release": "cross-env semantic-release --no-ci",
     "release": "npm-run-all build semantic-release",
     "test": "echo \"Error: no test specified\" && exit 0",
     "prepare": "husky",
     "tsc": "tsc --noEmit",
-    "setup-config": "if [ ! -f ./test/hbConfig/config.json ]; then cp ./test/hbConfig/config-template.json ./test/hbConfig/config.json; fi"
+    "setup-config": "if [ ! -f ./test/hbConfig/config.json ]; then cp ./test/hbConfig/config-template.json ./test/hbConfig/config.json; fi",
+    "prepack": "npm-run-all clean compile"
   },
-  "lint-staged": {
-    "*.{js,mjs,ts,json,md}": [
-      "eslint src/**.ts --fix --max-warnings=0 --no-warn-ignored",
-      "prettier --write"
-    ]
-  },
+  "prettier": "@jabrown93/dev-config/prettier",
   "dependencies": {
     "async-lock": "^1.4.1",
     "playactor": "^0.4.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "21.2.1",
-    "@commitlint/config-conventional": "21.2.0",
-    "@eslint/eslintrc": "3.3.6",
-    "@eslint/js": "10.0.1",
-    "@semantic-release/changelog": "6.0.3",
-    "@semantic-release/commit-analyzer": "13.0.1",
-    "@semantic-release/exec": "7.1.0",
-    "@semantic-release/git": "10.0.1",
-    "@semantic-release/github": "12.0.9",
-    "@semantic-release/npm": "13.1.5",
-    "@semantic-release/release-notes-generator": "14.1.1",
+    "@commitlint/cli": "21.2.2",
+    "@jabrown93/dev-config": "1.2.1",
     "@types/async": "3.2.25",
     "@types/async-lock": "1.4.2",
     "@types/js-yaml": "4.0.9",
     "@types/node": "24.13.3",
-    "@typescript-eslint/eslint-plugin": "8.64.0",
-    "@typescript-eslint/parser": "8.64.0",
-    "conventional-changelog-conventionalcommits": "10.2.1",
     "cross-env": "10.1.0",
-    "eslint": "10.7.0",
-    "eslint-plugin-ava": "17.0.1",
-    "eslint-plugin-json": "4.0.1",
-    "eslint-plugin-unicorn": "latest",
-    "homebridge": "2.1.1",
-    "homebridge-config-ui-x": "5.24.0",
+    "eslint": "10.9.1",
+    "homebridge": "2.4.0",
+    "homebridge-config-ui-x": "5.28.0",
     "husky": "9.1.7",
-    "lint-staged": "17.0.8",
+    "lint-staged": "17.4.1",
     "nodemon": "3.1.14",
-    "npm-run-all2": "9.0.2",
-    "prettier": "3.9.5",
+    "npm-run-all2": "9.0.3",
+    "prettier": "3.9.6",
     "rimraf": "6.1.3",
     "ts-node": "10.9.2",
-    "typescript": "6.0.3",
-    "typescript-eslint": "8.64.0"
+    "typescript": "6.0.3"
   },
   "engines": {
     "homebridge": "^1.8.0 || ^2.0.0-beta.0",
-    "node": "^22.12.0 || ^24.11.0"
+    "node": "^22.12.0 || ^24.11.0 || ^26.0.0"
   },
   "publishConfig": {
     "access": "public"

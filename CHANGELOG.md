@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.0](https://github.com/jabrown93/homebridge-playstation/compare/v1.7.3...v1.8.0) (2026-07-18)
+
+### Features
+
+* **engines:** standardize Node engines, CI triggers, and deprecate Homebridge 1.x ([#243](https://github.com/jabrown93/homebridge-playstation/issues/243)) ([4c700db](https://github.com/jabrown93/homebridge-playstation/commit/4c700dba25ee63341d29bf6dfc23af8b3d7598fd))
+
+### Bug Fixes
+
+* **package:** correct author URL and repository protocol ([#247](https://github.com/jabrown93/homebridge-playstation/issues/247)) ([034e9f1](https://github.com/jabrown93/homebridge-playstation/commit/034e9f1ba46e7bf224db7f8606531080367760df))
+
+## [1.7.3](https://github.com/jabrown93/homebridge-playstation/compare/v1.7.2...v1.7.3) (2026-07-17)
+
+### Bug Fixes
+
+* **release:** build in prepack instead of gating publish on checks ([#240](https://github.com/jabrown93/homebridge-playstation/issues/240)) ([01b0d46](https://github.com/jabrown93/homebridge-playstation/commit/01b0d467fd4022260b5c6540f278fc8f380f3892)), closes [jabrown93/.github#24](https://github.com/jabrown93/.github/issues/24)
+
+## [1.7.2](https://github.com/jabrown93/homebridge-playstation/compare/v1.7.1...v1.7.2) (2026-07-17)
+
+### Bug Fixes
+
+* **release:** restore changelog bodies by pinning conventionalcommits to v9 ([#239](https://github.com/jabrown93/homebridge-playstation/issues/239)) ([3b61b7d](https://github.com/jabrown93/homebridge-playstation/commit/3b61b7de50ec21d7a95dcd0600f905a95d8f70aa))
+
 ## [1.7.1](https://github.com/jabrown93/homebridge-playstation/compare/v1.7.0...v1.7.1) (2026-06-18)
 
 ### Bug Fixes

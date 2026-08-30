@@ -4,7 +4,7 @@ Homebridge dynamic platform plugin that exposes PS4/PS5 consoles to HomeKit as T
 
 Heavy lifting (discovery, wake, standby, title control) is delegated to [`playactor`](https://github.com/dhleong/playactor). This plugin is a thin Homebridge adapter on top of it. Before adding logic that talks to a PlayStation, check whether playactor already exposes the primitive.
 
-Node `^24.0.0` (see `.nvmrc` → `24`), ESM (`"type": "module"`) — local imports must include the `.js` extension even in `.ts` source. Homebridge engines: `^1.8.0 || ^2.0.0-beta.0`.
+Node `^22.12.0 || ^24.11.0 || ^26.0.0` (`.nvmrc` pins the local dev default to `24`), ESM (`"type": "module"`) — local imports must include the `.js` extension even in `.ts` source. Homebridge engines: `^1.8.0 || ^2.0.0-beta.0` (1.x is deprecated and will be dropped in a future major release).
 
 ## Commands
 
