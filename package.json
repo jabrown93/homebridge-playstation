@@ -1,7 +1,7 @@
 {
   "name": "@jabrown93/homebridge-playstation",
   "displayName": "Playstation",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Playstation integration for Homebridge",
   "type": "module",
   "keywords": [
@@ -61,7 +61,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.3",
-    "@jabrown93/dev-config": "1.2.6",
+    "@jabrown93/dev-config": "1.2.7",
     "@types/async": "3.2.26",
     "@types/async-lock": "1.4.2",
     "@types/js-yaml": "4.0.9",
