@@ -1,6 +1,6 @@
 ## Project context
 
-Homebridge dynamic platform plugin that exposes PS4/PS5 consoles to HomeKit as Television accessories. The README warns the plugin is not actively maintained except for automated dependency updates — be conservative about scope; this is not a green field.
+Homebridge dynamic platform plugin that exposes PS4/PS5 consoles to HomeKit as Television accessories. The plugin is decommissioned; the README points users to upstream `kopiro/homebridge-playstation`. Do not make further code changes.
 
 Heavy lifting (discovery, wake, standby, title control) is delegated to [`playactor`](https://github.com/dhleong/playactor). This plugin is a thin Homebridge adapter on top of it. Before adding logic that talks to a PlayStation, check whether playactor already exposes the primitive.
 

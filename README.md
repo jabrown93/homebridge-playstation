@@ -9,7 +9,14 @@
 [![Release](https://img.shields.io/github/v/release/jabrown93/homebridge-playstation)](https://github.com/jabrown93/homebridge-playstation/releases)
 [![Issues](https://img.shields.io/github/issues/jabrown93/homebridge-playstation)](https://github.com/jabrown93/homebridge-playstation/issues)
 
-## WARNING: This plugin is not actively maintained except for automated dependency updates. Issues/bugs are unlikely to be addressed. Use at your own risk
+## DECOMMISSIONED: This plugin is no longer maintained and will not receive any further support, fixes, or releases
+
+Use the upstream plugin instead:
+
+- Source: https://github.com/kopiro/homebridge-playstation
+- npm: https://www.npmjs.com/package/homebridge-playstation
+
+Issues and pull requests on this repository will not be reviewed.
 
 > Homebridge 1.x support is deprecated and will be removed in a future major release — please upgrade to Homebridge 2.x. Requires Node.js `^22.12.0`, `^24.11.0`, or `^26.0.0`.
 
